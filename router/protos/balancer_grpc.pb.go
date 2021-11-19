@@ -18,6 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BalancerServiceClient interface {
+	// Reload of balancer required when configuration of shards is changed, when new range was added, or when balancer not initialized yet
 	ReloadRequired(ctx context.Context, in *ReloadRequest, opts ...grpc.CallOption) (*ReloadReply, error)
 }
 
@@ -42,6 +43,7 @@ func (c *balancerServiceClient) ReloadRequired(ctx context.Context, in *ReloadRe
 // All implementations must embed UnimplementedBalancerServiceServer
 // for forward compatibility
 type BalancerServiceServer interface {
+	// Reload of balancer required when configuration of shards is changed, when new range was added, or when balancer not initialized yet
 	ReloadRequired(context.Context, *ReloadRequest) (*ReloadReply, error)
 	mustEmbedUnimplementedBalancerServiceServer()
 }
