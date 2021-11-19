@@ -105,7 +105,6 @@ func (l *LocalQrouterServer) SplitKeyRange(ctx context.Context, request *protos.
 }
 
 func Register(server reflection.GRPCServer, qrouter qrouter.QueryRouter) {
-
 	reflection.Register(server)
 
 	lqr := &LocalQrouterServer{

@@ -169,5 +169,5 @@ var ShardService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "protos/datashard.proto",
+	Metadata: "protos/shard.proto",
 }

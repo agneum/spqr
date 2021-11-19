@@ -14,6 +14,7 @@ import (
 	"github.com/pg-sharding/spqr/router/grpcclient"
 	router "github.com/pg-sharding/spqr/router/pkg"
 	client2 "github.com/pg-sharding/spqr/router/pkg/client"
+	client "github.com/pg-sharding/spqr/pkg/client"
 	routerproto "github.com/pg-sharding/spqr/router/protos"
 	spqrparser "github.com/pg-sharding/spqr/yacc/console"
 	"github.com/wal-g/tracelog"
@@ -42,8 +43,8 @@ func DialRouter(r router.Router) (*grpc.ClientConn, error) {
 }
 
 type qdbCoordinator struct {
+	client.InteractRunner
 	coordinator.Coordinator
-
 	db qdb.QrouterDB
 }
 
@@ -222,7 +223,6 @@ func (qc *qdbCoordinator) ProcClient(ctx context.Context, nconn net.Conn) error 
 					switch stmt.Cmd {
 
 					}
-
 				default:
 					return xerrors.New("failed to proc")
 				}

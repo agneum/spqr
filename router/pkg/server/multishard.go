@@ -34,6 +34,7 @@ func (m *MultiShardServer) AddShard(shkey kr.ShardKey) error {
 	}
 
 	sh, err := datashard.NewShard(shkey, pgi, config.RouterConfig().RouterConfig.ShardMapping[shkey.Name])
+
 	if err != nil {
 		return err
 	}
@@ -89,6 +90,7 @@ func (m *MultiShardServer) Receive() (pgproto3.BackendMessage, error) {
 		currshard := currshard
 		go func() {
 			err := func(shard datashard.Shard, ch chan<- pgproto3.BackendMessage, wg *sync.WaitGroup) error {
+
 				defer wg.Done()
 
 				msg, err := shard.Receive()

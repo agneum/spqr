@@ -45,6 +45,7 @@ type RRouter struct {
 func (r *RRouter) AddWorldShard(key qdb.ShardKey) error {
 	tracelog.InfoLogger.Printf("added world datashard to rrouter %v", key.Name)
 
+
 	return nil
 }
 
@@ -55,6 +56,7 @@ func (r *RRouter) AddShardInstance(key qdb.ShardKey, cfg *config.InstanceCFG) {
 func (r *RRouter) AddDataShard(key qdb.ShardKey) error {
 	return nil
 	// wait to datashard to become available
+
 	//wg, err := NewShardWatchDog(r.cfg, key.Name, r.routePool)
 	//
 	//if err != nil {
@@ -72,6 +74,7 @@ func (r *RRouter) AddDataShard(key qdb.ShardKey) error {
 }
 
 var _ RequestRouter = &RRouter{}
+
 
 func (r *RRouter) Shutdown() error {
 	return r.routePool.Shutdown()

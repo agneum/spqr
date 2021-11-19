@@ -40,6 +40,7 @@ type RelayStateImpl struct {
 }
 
 func NewRelayState(qr qrouter.QueryRouter, client client.RouterClient, manager ConnManager) *RelayStateImpl {
+
 	return &RelayStateImpl{
 		ActiveShards: nil,
 		TxActive:     false,
@@ -109,6 +110,7 @@ func (rst *RelayStateImpl) Reroute(q *pgproto3.Query) error {
 		}
 		//
 		if err := rst.Cl.ReplyNotice(fmt.Sprintf("matched datashard routes %v", v.Routes)); err != nil {
+
 			return err
 		}
 
@@ -130,11 +132,13 @@ func (rst *RelayStateImpl) Reroute(q *pgproto3.Query) error {
 		}
 		// fallback to execute query on wolrd datashard (s)
 
+
 		//
 
 		_, _ = rst.RerouteWorld()
 		if err := rst.ConnectWold(); err != nil {
 			_ = rst.UnRouteWithError(nil, xerrors.Errorf("failed to fallback on world datashard: %w", err))
+
 			return err
 		}
 
@@ -186,6 +190,7 @@ func (rst *RelayStateImpl) Connect(shardRoutes []*qrouter.ShardRoute) error {
 	} else {
 		tracelog.InfoLogger.Printf("initialize datashard server conn")
 		_ = rst.Cl.ReplyNotice("initialize single datashard server conn")
+
 		serv = server.NewShardServer(rst.Cl.Route().BeRule(), rst.Cl.Route().ServPool())
 	}
 
@@ -208,6 +213,7 @@ func (rst *RelayStateImpl) ConnectWold() error {
 	tracelog.InfoLogger.Printf("initialize datashard server conn")
 	_ = rst.Cl.ReplyNotice("initialize single datashard server conn")
 
+
 	serv := server.NewShardServer(rst.Cl.Route().BeRule(), rst.Cl.Route().ServPool())
 
 	if err := rst.Cl.AssignServerConn(serv); err != nil {
@@ -215,6 +221,7 @@ func (rst *RelayStateImpl) ConnectWold() error {
 	}
 
 	tracelog.InfoLogger.Printf("route cl %s:%s to world datashard", rst.Cl.Usr(), rst.Cl.DB())
+
 
 	if err := rst.manager.RouteCB(rst.Cl, rst.ActiveShards); err != nil {
 		tracelog.ErrorLogger.Printf("failed to route cl %w", err)
