@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackc/pgproto3/v2"
 	"github.com/pg-sharding/spqr/coordinator"
+	"github.com/pg-sharding/spqr/pkg/client"
 	"github.com/pg-sharding/spqr/pkg/config"
 	"github.com/pg-sharding/spqr/pkg/conn"
 	"github.com/pg-sharding/spqr/pkg/models/kr"
@@ -13,8 +14,7 @@ import (
 	"github.com/pg-sharding/spqr/qdb"
 	"github.com/pg-sharding/spqr/router/grpcclient"
 	router "github.com/pg-sharding/spqr/router/pkg"
-	client2 "github.com/pg-sharding/spqr/router/pkg/client"
-	client "github.com/pg-sharding/spqr/pkg/client"
+	psqlclient "github.com/pg-sharding/spqr/router/pkg/client"
 	routerproto "github.com/pg-sharding/spqr/router/protos"
 	spqrparser "github.com/pg-sharding/spqr/yacc/console"
 	"github.com/wal-g/tracelog"
@@ -122,7 +122,7 @@ func (qc *qdbCoordinator) AddKeyRange(ctx context.Context, keyRange *kr.KeyRange
 
 		cl := routerproto.NewKeyRangeServiceClient(cc)
 		resp, err := cl.AddKeyRange(ctx, &routerproto.AddKeyRangeRequest{
-			KeyRange: keyRange.ToProto(),
+			KeyRangeInfo: keyRange.ToProto(),
 		})
 
 		if err != nil {
@@ -151,7 +151,7 @@ func (qc *qdbCoordinator) RegisterRouter(ctx context.Context, r *qdb.Router) err
 }
 
 func (qc *qdbCoordinator) ProcClient(ctx context.Context, nconn net.Conn) error {
-	cl := client2.NewPsqlClient(nconn)
+	cl := psqlclient.NewPsqlClient(nconn)
 
 	err := cl.Init(nil, config.SSLMODEDISABLE)
 
