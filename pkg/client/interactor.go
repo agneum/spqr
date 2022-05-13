@@ -6,10 +6,11 @@ import (
 	"net"
 
 	"github.com/jackc/pgproto3/v2"
+	"github.com/wal-g/tracelog"
+
 	"github.com/pg-sharding/spqr/pkg/models/datashards"
 	"github.com/pg-sharding/spqr/pkg/models/kr"
 	"github.com/pg-sharding/spqr/pkg/models/shrule"
-	"github.com/wal-g/tracelog"
 )
 
 type Interactor interface {
@@ -229,6 +230,88 @@ func (pi *PSQLInteractor) LockKeyRange(ctx context.Context, krid string, cl Clie
 				fmt.Sprintf("lock key range with id %v", krid)),
 		},
 		},
+		&pgproto3.CommandComplete{},
+		&pgproto3.ReadyForQuery{},
+	} {
+		if err := cl.Send(msg); err != nil {
+			tracelog.InfoLogger.Print(err)
+		}
+	}
+
+	return nil
+}
+
+func (pi *PSQLInteractor) UnlockKeyRange(_ context.Context, krid string, cl Client) error {
+	for _, msg := range []pgproto3.BackendMessage{
+		&pgproto3.RowDescription{Fields: []pgproto3.FieldDescription{
+			{
+				Name:                 []byte("unlock key range"),
+				TableOID:             0,
+				TableAttributeNumber: 0,
+				DataTypeOID:          25,
+				DataTypeSize:         -1,
+				TypeModifier:         -1,
+				Format:               0,
+			},
+		},
+		},
+		&pgproto3.DataRow{Values: [][]byte{
+			[]byte(
+				fmt.Sprintf("unlock key range with id %v", krid)),
+		},
+		},
+		&pgproto3.CommandComplete{},
+		&pgproto3.ReadyForQuery{},
+	} {
+		if err := cl.Send(msg); err != nil {
+			tracelog.InfoLogger.Print(err)
+		}
+	}
+
+	return nil
+}
+
+func (pi *PSQLInteractor) MergeKeyRanges(_ context.Context, unite *kr.UniteKeyRange, cl Client) error {
+	for _, msg := range []pgproto3.BackendMessage{
+		&pgproto3.RowDescription{Fields: []pgproto3.FieldDescription{
+			{
+				Name:                 []byte("merge key ranges"),
+				TableOID:             0,
+				TableAttributeNumber: 0,
+				DataTypeOID:          25,
+				DataTypeSize:         -1,
+				TypeModifier:         -1,
+				Format:               0,
+			},
+		},
+		},
+		&pgproto3.DataRow{Values: [][]byte{[]byte(fmt.Sprintf("merge key ranges %v and %v", unite.KeyRangeIDLeft, unite.KeyRangeIDRight))}},
+		&pgproto3.CommandComplete{},
+		&pgproto3.ReadyForQuery{},
+	} {
+		if err := cl.Send(msg); err != nil {
+			tracelog.InfoLogger.Print(err)
+		}
+	}
+
+	return nil
+}
+
+func (pi *PSQLInteractor) MoveKeyRange(_ context.Context, keyRange *kr.KeyRange, shardID int, cl Client) error {
+	for _, msg := range []pgproto3.BackendMessage{
+		&pgproto3.RowDescription{Fields: []pgproto3.FieldDescription{
+			{
+				Name:                 []byte("move key range"),
+				TableOID:             0,
+				TableAttributeNumber: 0,
+				DataTypeOID:          25,
+				DataTypeSize:         -1,
+				TypeModifier:         -1,
+				Format:               0,
+			},
+		},
+		},
+		&pgproto3.DataRow{Values: [][]byte{[]byte(fmt.Sprintf("move key range %v to shard %v", keyRange, shardID))}},
 		&pgproto3.CommandComplete{},
 		&pgproto3.ReadyForQuery{},
 	} {
