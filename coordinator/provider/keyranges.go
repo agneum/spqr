@@ -71,10 +71,33 @@ func (c CoordinatorService) getKeyRangeIDByBounds(ctx context.Context, keyRange 
 }
 
 func (c CoordinatorService) SplitKeyRange(ctx context.Context, request *protos.SplitKeyRangeRequest) (*protos.ModifyReply, error) {
-	err := c.impl.Split(ctx, &kr.SplitKeyRange{
-		Bound: request.Bound,
-	})
+	krsqb, err := c.impl.ListKeyRange(ctx)
 	if err != nil {
+		return nil, err
+	}
+
+	splitKR := &kr.SplitKeyRange{
+		Bound: request.Bound,
+		Krid:  request.Krid,
+	}
+
+	// TODO: choose a key range without hacks.
+	bound := string(request.GetBound())
+	for _, krqb := range krsqb {
+		if string(krqb.LowerBound) == bound || string(krqb.UpperBound) == bound {
+			return &protos.ModifyReply{}, nil
+		}
+
+		if string(krqb.LowerBound) < bound && string(krqb.UpperBound) > bound {
+			splitKR.SourceID = krqb.ID
+		}
+	}
+
+	if splitKR.SourceID == "" {
+		return nil, fmt.Errorf("key range with %s border not found", bound)
+	}
+
+	if err := c.impl.Split(ctx, splitKR); err != nil {
 		return nil, err
 	}
 

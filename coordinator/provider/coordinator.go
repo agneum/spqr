@@ -209,7 +209,8 @@ func (qc *qdbCoordinator) Split(ctx context.Context, req *kr.SplitKeyRange) erro
 		&qdb.KeyRange{
 			LowerBound: req.Bound,
 			UpperBound: krOld.UpperBound,
-			KeyRangeID: req.SourceID,
+			KeyRangeID: req.Krid,
+			ShardID:    krOld.ShardID,
 		},
 	)
 
